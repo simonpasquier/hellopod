@@ -71,8 +71,10 @@ func main() {
 			w.Write(ok.Bytes())
 		case "DELETE":
 			atomic.StoreInt32(&healthy, 0)
+			w.Write(nok.Bytes())
 		case "POST":
 			atomic.StoreInt32(&healthy, 1)
+			w.Write(ok.Bytes())
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -89,8 +91,10 @@ func main() {
 			w.Write(ok.Bytes())
 		case "DELETE":
 			atomic.StoreInt32(&ready, 0)
+			w.Write(nok.Bytes())
 		case "POST":
 			atomic.StoreInt32(&ready, 1)
+			w.Write(ok.Bytes())
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
