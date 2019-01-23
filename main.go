@@ -24,10 +24,10 @@ import (
 )
 
 var (
-	help                 bool
-	ready, healthy       int32
-	listen, host         string
-	ok, nok, hello, quit *bytes.Buffer
+	help                       bool
+	ready, healthy             int32
+	listen, host               string
+	ok, nok, hello, quit, fail *bytes.Buffer
 )
 
 func init() {
@@ -40,10 +40,11 @@ func init() {
 	if host, err = os.Hostname(); err != nil {
 		panic(err)
 	}
-	ok = bytes.NewBufferString(fmt.Sprintf("OK from %s", host))
-	nok = bytes.NewBufferString(fmt.Sprintf("NOK from %s", host))
+	ok = bytes.NewBufferString(fmt.Sprintf("OK from %s\n", host))
+	nok = bytes.NewBufferString(fmt.Sprintf("NOK from %s\n", host))
 	hello = bytes.NewBufferString(fmt.Sprintf("Hello from %s!\n", host))
 	quit = bytes.NewBufferString(fmt.Sprintf("Bye from %s!\n", host))
+	fail = bytes.NewBufferString(fmt.Sprintf("Fail from %s!\n", host))
 }
 
 func main() {
@@ -58,6 +59,11 @@ func main() {
 	http.HandleFunc("/quit", func(w http.ResponseWriter, r *http.Request) {
 		w.Write(quit.Bytes())
 		close(done)
+	})
+
+	http.HandleFunc("/fail", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(fail.Bytes())
+		done <- fmt.Errorf(fail.String())
 	})
 
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
