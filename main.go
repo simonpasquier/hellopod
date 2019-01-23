@@ -46,12 +46,17 @@ func init() {
 }
 
 func main() {
+	done := make(chan error, 1)
 	flag.Parse()
 	if help {
 		fmt.Fprintln(os.Stderr, "Hello pod!")
 		flag.PrintDefaults()
 		os.Exit(0)
 	}
+
+	http.HandleFunc("/quit", func(w http.ResponseWriter, r *http.Request) {
+		close(done)
+	})
 
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -97,6 +102,19 @@ func main() {
 		w.Write(hello.Bytes())
 	})
 
-	log.Println("Listening on", listen)
-	log.Fatal(http.ListenAndServe(listen, nil))
+	srv := &http.Server{Addr: listen}
+	go func() {
+		log.Println("Listening on", listen)
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			done <- err
+		}
+	}()
+	err := <-done
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Shutting down")
+	if err = srv.Close(); err != nil {
+		log.Fatalln(err)
+	}
 }
