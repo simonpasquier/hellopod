@@ -26,9 +26,8 @@ import (
 var (
 	help           bool
 	ready, healthy int32
-	listen         string
-	ok             = bytes.NewBufferString("OK")
-	nok            = bytes.NewBufferString("NOK")
+	listen, host   string
+	ok, nok, hello *bytes.Buffer
 )
 
 func init() {
@@ -36,6 +35,14 @@ func init() {
 	flag.StringVar(&listen, "listen-address", ":8080", "Listen address")
 	ready = 1
 	healthy = 1
+
+	var err error
+	if host, err = os.Hostname(); err != nil {
+		panic(err)
+	}
+	ok = bytes.NewBufferString(fmt.Sprintf("OK from %s", host))
+	nok = bytes.NewBufferString(fmt.Sprintf("NOK from %s", host))
+	hello = bytes.NewBufferString(fmt.Sprintf("Hello from %s!\n", host))
 }
 
 func main() {
@@ -87,15 +94,7 @@ func main() {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		host, err := os.Hostname()
-		var b *bytes.Buffer
-		if err != nil {
-			b = bytes.NewBufferString(fmt.Sprintf("%s", err))
-			w.WriteHeader(http.StatusInternalServerError)
-		} else {
-			b = bytes.NewBufferString(fmt.Sprintf("Hello from %s!\n", host))
-		}
-		w.Write(b.Bytes())
+		w.Write(hello.Bytes())
 	})
 
 	log.Println("Listening on", listen)
