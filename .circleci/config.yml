@@ -12,7 +12,7 @@ jobs:
     - persist_to_workspace:
         root: .
         paths:
-        - details
+        - hellopod
 
   push_image:
     docker:
