@@ -24,10 +24,10 @@ import (
 )
 
 var (
-	help           bool
-	ready, healthy int32
-	listen, host   string
-	ok, nok, hello *bytes.Buffer
+	help                 bool
+	ready, healthy       int32
+	listen, host         string
+	ok, nok, hello, quit *bytes.Buffer
 )
 
 func init() {
@@ -43,6 +43,7 @@ func init() {
 	ok = bytes.NewBufferString(fmt.Sprintf("OK from %s", host))
 	nok = bytes.NewBufferString(fmt.Sprintf("NOK from %s", host))
 	hello = bytes.NewBufferString(fmt.Sprintf("Hello from %s!\n", host))
+	quit = bytes.NewBufferString(fmt.Sprintf("Bye from %s!\n", host))
 }
 
 func main() {
@@ -55,6 +56,7 @@ func main() {
 	}
 
 	http.HandleFunc("/quit", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(quit.Bytes())
 		close(done)
 	})
 
