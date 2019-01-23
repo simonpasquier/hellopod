@@ -93,7 +93,7 @@ func main() {
 			b = bytes.NewBufferString(fmt.Sprintf("%s", err))
 			w.WriteHeader(http.StatusInternalServerError)
 		} else {
-			b = bytes.NewBufferString(fmt.Sprintf("Hello from %s!", host))
+			b = bytes.NewBufferString(fmt.Sprintf("Hello from %s!\n", host))
 		}
 		w.Write(b.Bytes())
 	})
