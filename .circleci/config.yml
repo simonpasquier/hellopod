@@ -1,9 +1,9 @@
-version: 2
+version: 2.1
 
 jobs:
   build:
     docker:
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.19
 
     steps:
     - checkout
@@ -16,7 +16,7 @@ jobs:
 
   push_image:
     docker:
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.19
 
     steps:
     - checkout
@@ -26,7 +26,6 @@ jobs:
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD quay.io
     - run: docker build -t quay.io/simonpasquier/hellopod:latest .
     - run: docker push quay.io/simonpasquier/hellopod
-
 
 workflows:
   version: 2
